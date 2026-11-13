@@ -135,6 +135,45 @@ button, input, textarea, select {
 .sess:hover { background: var(--bg-hover); }
 .sess.on { background: var(--brand-weak); color: var(--brand); }
 
+/* 侧栏分组标题 */
+.grp {
+  display: flex; align-items: center; gap: 6px;
+  padding: 12px 10px 4px;
+  font-size: 12px;
+  color: var(--fg-faint);
+}
+.grp-tag {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--fg-faint);
+  background: var(--bg-hover);
+  border-radius: 8px;
+  padding: 0 6px;
+}
+.grp-err { color: var(--danger); }
+.grp-empty {
+  padding: 4px 10px 8px;
+  font-size: 12.5px;
+  color: var(--fg-faint);
+  line-height: 1.6;
+}
+.grp-empty a { color: var(--brand); text-decoration: none; }
+
+/* 网页版对话条目 */
+.sess.rm { color: var(--fg-dim); }
+.sess.rm:hover { color: var(--fg); }
+.rm-tag {
+  display: inline-block;
+  font-size: 10px;
+  line-height: 1.4;
+  padding: 0 4px;
+  margin-right: 4px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--fg-faint);
+  vertical-align: 1px;
+}
+
 .side-foot {
   border-top: 1px solid var(--line);
   padding: 10px 12px;

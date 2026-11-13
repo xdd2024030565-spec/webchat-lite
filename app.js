@@ -12,6 +12,15 @@
     base: 'https://deepseek-web.yongjiu.ccwu.cc/v1',
     storeKey: 'dsweb-lite.v1'
   };
+  // 允许覆盖反代地址：window.DSWEB_BASE = 'https://你自己的反代/v1'
+  // 也支持 ?base=... 临时指定（自部署或调试时方便）
+  (function () {
+    try {
+      if (window.DSWEB_BASE) { CFG.base = String(window.DSWEB_BASE); return; }
+      var m = (window.location.search || '').match(/[?&]base=([^&]+)/);
+      if (m) CFG.base = decodeURIComponent(m[1]);
+    } catch (e) {}
+  })();
 
   /* ---------- 小工具 ---------- */
   function $(id) { return document.getElementById(id); }
@@ -57,6 +66,10 @@
   /* ---------- 状态 ---------- */
   var sessions = [];
   var activeId = '';
+  // 上游（网页版）里已有的会话列表：进入页面就自动拉取并展示，与官方一致
+  var remoteSessions = [];
+  var remoteLoading = false;
+  var remoteErr = '';
   var settings = {
     model: 'deepseek-chat',
     theme: 'dark',
@@ -210,21 +223,139 @@
   /* ---------- 渲染 ---------- */
   function renderSide() {
     var box = $('sessList'); if (!box) return;
-    var h = '', i, s;
-    for (i = 0; i < sessions.length; i++) {
-      s = sessions[i];
-      h += '<div class="sess' + (s.id === activeId ? ' on' : '') + '" data-id="' + esc(s.id) + '">' +
-           esc(s.title || '新对话') + '</div>';
+    var h = '', i;
+
+    // ===== 本地对话 =====
+    h += '<div class="grp">本机对话</div>';
+    if (!sessions.length) {
+      h += '<div class="grp-empty">还没有本机对话</div>';
+    } else {
+      for (i = 0; i < sessions.length; i++) {
+        var sc = sessions[i];
+        h += '<div class="sess' + (sc.id === activeId ? ' on' : '') + '" data-id="' + esc(sc.id) + '">' +
+             esc(sc.title || '新对话') + '</div>';
+      }
     }
-    box.innerHTML = h || '<div style="padding:10px;font-size:13px;color:var(--fg-faint)">还没有对话</div>';
-    var items = box.getElementsByTagName('div');
-    for (i = 0; i < items.length; i++) {
+
+    // ===== 网页版已有对话（进入页面自动加载，与官方一致）=====
+    h += '<div class="grp">网页版对话';
+    if (remoteLoading) h += '<span class="grp-tag">加载中…</span>';
+    else if (remoteErr) h += '<span class="grp-tag grp-err">读取失败</span>';
+    else h += '<span class="grp-tag">' + remoteSessions.length + '</span>';
+    h += '</div>';
+
+    if (remoteErr) {
+      h += '<div class="grp-empty">' + esc(remoteErr) + ' <a href="#" id="remoteRetry">重试</a></div>';
+    } else if (!remoteLoading && !remoteSessions.length) {
+      h += '<div class="grp-empty">网页版里还没有对话</div>';
+    } else {
+      for (i = 0; i < remoteSessions.length; i++) {
+        var rs = remoteSessions[i];
+        var mark = rs.tagged ? '<span class="rm-tag">固定</span>' : '';
+        h += '<div class="sess rm" data-rid="' + esc(rs.id) + '">' + mark +
+             esc(rs.title || '(无标题)') + '</div>';
+      }
+    }
+
+    box.innerHTML = h;
+
+    var els = box.getElementsByTagName('div'), k;
+    for (k = 0; k < els.length; k++) {
       (function (el) {
         var id = el.getAttribute && el.getAttribute('data-id');
-        if (!id) return;
-        on(el, 'click', function () { activeId = id; saveAll(); renderAll(); });
-      })(items[i]);
+        var rid = el.getAttribute && el.getAttribute('data-rid');
+        if (id) {
+          on(el, 'click', function () { activeId = id; saveAll(); renderAll(); closeSide(); });
+        } else if (rid) {
+          on(el, 'click', function () { openRemote(rid); });
+        }
+      })(els[k]);
     }
+    var rb = $('remoteRetry');
+    if (rb) on(rb, 'click', function (e) { e.preventDefault(); loadRemote(); });
+  }
+
+  // 拉取网页版已有对话（进入页面自动调用）
+  function loadRemote() {
+    if (remoteLoading) return;
+    remoteLoading = true; remoteErr = '';
+    renderSide();
+
+    var x = new XMLHttpRequest();
+    x.timeout = 30000;
+    x.onreadystatechange = function () {
+      if (x.readyState !== 4) return;
+      remoteLoading = false;
+      if (x.status >= 200 && x.status < 300) {
+        var d = jParse(x.responseText || '');
+        remoteSessions = (d && d.data) || [];
+        remoteErr = '';
+      } else if (x.status === 0) {
+        remoteErr = '网络错误';
+      } else {
+        remoteErr = 'HTTP ' + x.status;
+      }
+      renderSide();
+    };
+    x.onerror = function () { remoteLoading = false; remoteErr = '网络错误'; renderSide(); };
+    x.ontimeout = function () { remoteLoading = false; remoteErr = '超时'; renderSide(); };
+    try {
+      x.open('GET', CFG.base + '/sessions', true);
+      x.send();
+    } catch (e) {
+      remoteLoading = false; remoteErr = '无法连接'; renderSide();
+    }
+  }
+
+  // 打开某个网页版对话：拉它的历史消息，转成本地对话展示
+  function openRemote(sid) {
+    var rs = null, i;
+    for (i = 0; i < remoteSessions.length; i++) {
+      if (remoteSessions[i].id === sid) { rs = remoteSessions[i]; break; }
+    }
+    // 已经导入过就复用，避免重复拉取
+    for (i = 0; i < sessions.length; i++) {
+      if (sessions[i].pinnedSessionId === sid) {
+        activeId = sessions[i].id; saveAll(); renderAll(); closeSide();
+        return;
+      }
+    }
+    var sc = {
+      id: uid(), title: (rs && rs.title) || '网页版对话',
+      messages: [], created: nowMs(), updated: nowMs(),
+      pinnedSessionId: sid
+    };
+    sessions.unshift(sc);
+    activeId = sc.id;
+    saveAll(); renderAll(); closeSide();
+
+    toast('正在读取对话…');
+    var x = new XMLHttpRequest();
+    x.timeout = 40000;
+    x.onreadystatechange = function () {
+      if (x.readyState !== 4) return;
+      if (x.status >= 200 && x.status < 300) {
+        var d = jParse(x.responseText || '');
+        var ms = (d && d.messages) || [];
+        var k;
+        for (k = 0; k < ms.length; k++) {
+          sc.messages.push({
+            role: ms[k].role, content: ms[k].content,
+            reasoning: ms[k].reasoning || '', _imported: true
+          });
+        }
+        sc.updated = nowMs();
+        saveAll(); renderAll();
+        toast('已载入 ' + ms.length + ' 条');
+      } else {
+        toast('读取失败');
+      }
+    };
+    try {
+      // 首屏给出足够上下文，默认取最近 40 条（上限 20 由后端限制，这里传 20）
+      x.open('GET', CFG.base + '/sessions/messages?id=' + encodeURIComponent(sid) + '&limit=200', true);
+      x.send();
+    } catch (e) { toast('读取失败'); }
   }
 
   function thinkHtml(txt, streaming, key) {
@@ -881,6 +1012,8 @@
     }
     renderAll();
     autoGrow();
+    // 进入页面即拉取网页版已有对话，与官方一致（不需要额外的 token）
+    loadRemote();
   }
 
   if (document.readyState === 'loading') {
