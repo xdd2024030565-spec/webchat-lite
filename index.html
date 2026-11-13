@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#3964fe">
+<title>DeepSeek · 兼容版</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body class="theme-dark">
+
+<div class="app">
+
+  <!-- ===== 左侧栏 ===== -->
+  <aside class="side" id="side">
+    <div class="side-top">
+      <button class="btn-new" id="btnNew" type="button">
+        <span class="plus">＋</span>开启新对话
+      </button>
+    </div>
+    <div class="side-list" id="sessList"></div>
+    <div class="side-foot">
+      <a href="#" id="lnkPick">选择已有对话…</a>
+      <a href="#" id="lnkTheme">切换主题</a>
+      <a href="#" id="lnkEink">电子墨水屏模式</a>
+      <a href="#" id="lnkExport">导出当前对话</a>
+      <a href="#" id="lnkClear">清空全部数据</a>
+    </div>
+  </aside>
+
+  <!-- ===== 主区 ===== -->
+  <main class="main">
+    <div class="topbar">
+      <button class="icon-btn" id="btnMenu" type="button" title="菜单">☰</button>
+      <span class="title" id="chatTitle">新对话</span>
+      <span class="sp"></span>
+      <button class="icon-btn" id="btnModel" type="button" title="模型">⚙</button>
+    </div>
+
+    <div class="chat" id="chat"></div>
+
+    <div class="composer">
+      <div class="inner">
+        <div class="cbox">
+          <textarea id="input" rows="1" placeholder="给 DeepSeek 发送消息"></textarea>
+          <div class="crow">
+            <button class="chip" id="chipSearch" type="button">联网搜索</button>
+            <button class="chip" id="chipThink" type="button">深度思考</button>
+            <button class="chip" id="chipInc" type="button">增量模式</button>
+            <span class="sp"></span>
+            <button class="send" id="btnSend" type="button" title="发送">↑</button>
+            <button class="send" id="btnStop" type="button" title="停止" style="display:none">■</button>
+          </div>
+        </div>
+        <div class="hint" id="hint">内容由 AI 生成，请仔细甄别</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 选择已有对话 -->
+<div class="mask" id="pickMask">
+  <div class="dialog">
+    <div class="dh">选择已有对话</div>
+    <div class="db" id="pickBody"></div>
+    <div class="df">
+      <label class="hint" style="margin:0">导入最近
+        <input id="pickLimit" type="text" value="5"
+               style="width:44px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)">
+        条</label>
+      <span class="sp"></span>
+      <button class="btn" id="pickCancel" type="button">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 模型 / 设置 -->
+<div class="mask" id="setMask">
+  <div class="dialog">
+    <div class="dh">设置</div>
+    <div class="db" id="setBody"></div>
+    <div class="df">
+      <span class="sp"></span>
+      <button class="btn primary" id="setClose" type="button">完成</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
