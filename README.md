@@ -1,5 +1,8 @@
 # DeepSeek 网页版 · 兼容版
 
+> **在线访问**：https://xdd2024030565-spec.github.io/dsweb-lite/
+> 也可直接下载 `index.html` / `app.css` / `app.js` 三个文件离线打开。
+
 把 `chat.deepseek.com` 的界面与核心功能，用**纯 ES5** 重做一份，让老设备 / 老 WebView / 电子墨水屏也能用。
 
 外观按官方 `main.dc093a796f.css` 的**设计令牌**复刻（配色、字号、圆角、间距），不是凭印象画的。
