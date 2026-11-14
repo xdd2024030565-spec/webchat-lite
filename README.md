@@ -104,8 +104,9 @@ Grok 的免费网页版走的是 `grok.com` 的登录态，凭证是 Cookie 里�
 1. 浏览器打开 `https://grok.com/` 并登录（需要能访问它的网络环境）
 2. F12 → Application（应用）→ Storage → Cookies → `https://grok.com`
 3. 复制 `sso` 的值
-4. 放进反代：Cloudflare 后台 Workers → deepseek-web → Settings → Variables and Secrets 添加
-   `GROK_TOKENS`（值就是 `sso`）；只在单台设备用时，也可以直接填进 ⚙ → 连接 → 口令框
+4. 放进反代：把 `sso` 写进反代仓库的 GitHub secret `GROK_TOKENS`，重新部署即可
+   （部署流程会把它作为 Worker 变量注入；换账号就改这个 secret 再部署一次）。
+   只想在单台设备上用的话，也可以直接填进 ⚙ → 连接 → 口令框，不必动反代
 
 可选模型：
 
