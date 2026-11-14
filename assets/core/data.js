@@ -153,6 +153,23 @@
     return s;
   }
 
+  // 删除一个本机对话；删的正好是当前对话时，切到剩下的第一个，全删光就补一个新的
+  function delSession(id) {
+    var list = ST.stored.sessions, out = [], i;
+    for (i = 0; i < list.length; i++) {
+      if (list[i].id !== id) out.push(list[i]);
+    }
+    ST.stored.sessions = out;
+    if (!out.length) {
+      ST.stored.activeId = '';
+      newSession(true);
+    } else if (!findSession(ST.stored.activeId)) {
+      ST.stored.activeId = out[0].id;
+    }
+    saveData();
+    if (WCL.chrome) WCL.chrome.renderAll();
+  }
+
   function contextMsgs(s) {
     var out = [], i, m, msgs = (s && s.messages) || [];
     for (i = 0; i < msgs.length; i++) {
@@ -194,7 +211,7 @@
     siteBase: siteBase, siteUrl: siteUrl, siteHealthUrl: siteHealthUrl, reqHeaders: reqHeaders,
     modelIds: modelIds, mergeSettings: mergeSettings,
     findSession: findSession, curSession: curSession, sanitizeSessions: sanitizeSessions,
-    loadSiteData: loadSiteData, scopeId: scopeId, newSession: newSession,
+    loadSiteData: loadSiteData, scopeId: scopeId, newSession: newSession, delSession: delSession,
     contextMsgs: contextMsgs, buildBody: buildBody, exportText: exportText
   };
 })(typeof window !== 'undefined' ? window : this);

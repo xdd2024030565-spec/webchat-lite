@@ -28,7 +28,9 @@
     for (i = 0; i < list.length; i++) {
       s = list[i];
       h += '<div class="sess' + (s.id === ST.stored.activeId ? ' on' : '') + '" data-id="' +
-        D().esc(s.id) + '">' + D().esc(s.title || '新对话') + '</div>';
+        D().esc(s.id) + '"><span class="stitle">' + D().esc(s.title || '新对话') + '</span>' +
+        '<button class="sdel" type="button" data-del="' + D().esc(s.id) +
+        '" title="删除这个对话" aria-label="删除这个对话">×</button></div>';
     }
     if (site && site.caps.remoteSessions) {
       var tag = ST.st.remoteLoading ? '加载中…' :
@@ -60,6 +62,18 @@
           WCL.data.saveData();
           WCL.chrome.renderAll();
           if (WCL.shell) WCL.shell.closeSide();
+        });
+      })(els[i]);
+    }
+    els = box.querySelectorAll('.sdel[data-del]');
+    for (i = 0; i < els.length; i++) {
+      (function (el) {
+        D().on(el, 'click', function (e) {
+          if (e && e.preventDefault) e.preventDefault();
+          if (e && e.stopPropagation) e.stopPropagation();
+          var id = el.getAttribute('data-del');
+          if (!root.confirm('删除这个对话？只存在本机，删除后无法恢复。')) return;
+          WCL.data.delSession(id);
         });
       })(els[i]);
     }

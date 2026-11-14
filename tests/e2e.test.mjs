@@ -161,6 +161,25 @@ test('站点会话互相隔离，切回来还在', async () => {
   await until('document.getElementById("chat").textContent.indexOf("站点隔离测试") >= 0', 5000);
 });
 
+test('删除本机对话：侧栏 × 删掉会话，删光后自动补一个空对话', async () => {
+  await fresh('base=' + enc(stub.url));
+  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 2');
+  await page.run('window.confirm = function () { return true; }; return true;');
+
+  assert.equal(await page.count('#sessList .sess[data-id]'), 1);
+  await page.run('document.getElementById("btnNew").click(); document.getElementById("btnNew").click(); return true;');
+  await until('document.querySelectorAll("#sessList .sess[data-id]").length === 3');
+
+  await page.run('document.querySelector("#sessList .sdel[data-del]").click(); return true;');
+  await until('document.querySelectorAll("#sessList .sess[data-id]").length === 2');
+
+  // 继续删到空：应该自动留下一个新的空对话，而不是列表为空
+  await page.run('document.querySelector("#sessList .sdel[data-del]").click(); return true;');
+  await page.run('document.querySelector("#sessList .sdel[data-del]").click(); return true;');
+  await until('document.querySelectorAll("#sessList .sess[data-id]").length === 1');
+  assert.match(await page.text('#sessList'), /新对话/);
+});
+
 test('本机存储写失败：给出提示但消息照常显示', async () => {
   await fresh('base=' + enc(stub.url));
   await until('document.querySelectorAll("#siteSwitch .sbtn").length === 2');
