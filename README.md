@@ -3,7 +3,7 @@
 > **在线访问**：https://xdd2024030565-spec.github.io/webchat-lite/
 > 纯静态、无构建：拷走 `index.html` + `assets/` 就能离线打开。
 
-把网页版聊天（DeepSeek、豆包……）用**纯 ES5** 复刻成一套界面，让老设备 / 老 WebView / 电子墨水屏也能用；顶部一键切换站点，每个站点保留它自己的配色、文案与能力开关。
+把网页版聊天（DeepSeek、豆包、Grok……）用**纯 ES5** 复刻成一套界面，让老设备 / 老 WebView / 电子墨水屏也能用；顶部一键切换站点，每个站点保留它自己的配色、文案与能力开关。
 
 ## 为什么做这个
 
@@ -59,6 +59,7 @@ assets/core/shell.js       设置、选择对话、导出、清空
 assets/sites/index.js      站点清单 + 顺序加载器
 assets/sites/deepseek.js   DeepSeek 站点定义
 assets/sites/doubao.js     豆包站点定义
+assets/sites/grok.js       Grok 站点定义
 tools/                     开发工具（ES5 门禁、本地假后端、e2e 驱动）
 tests/                     node --test 用例
 ```
@@ -96,6 +97,21 @@ tests/                     node --test 用例
 放好之后点一下 ⚙ 里的「检查」，正常会显示可用。豆包暂不支持「绑定网页版对话」「联网搜索」，
 这两个开关在豆包站会自动隐藏。
 
+## Grok 怎么才能用
+
+Grok 的免费网页版走的是 `grok.com` 的登录态，凭证是 Cookie 里的 `sso`：
+
+1. 浏览器打开 `https://grok.com/` 并登录（需要能访问它的网络环境）
+2. F12 → Application（应用）→ Storage → Cookies → `https://grok.com`
+3. 复制 `sso` 的值
+4. 放进反代：`cd worker/deepseek && npx wrangler secret put GROK_TOKENS`，或登录后由维护者写入
+
+注意：
+
+- 免费额度有限（大约 10 条 / 2 小时），本版**每条消息只打一次上游，失败不自动重试**，避免触发风控
+- 只有纯对话：没有历史会话绑定、没有联网搜索、没有思考块
+- `sso` 等于账号登录态，泄露就等于把号交出去，别贴到公开地方
+
 ## 兼容性
 
 - 目标：Android 5.1+ / Chromium 49+ WebView、老 Chrome/Safari、电子墨水屏浏览器
@@ -118,5 +134,6 @@ e2e 不会访问任何真实站点，重复跑不会碰上游风控；真实上�
 | 版本 | 内容 |
 |---|---|
 | v2.0.1 | 侧栏支持删除单个本机对话；flex gap 全换外边距 |
+| v2.1.0 | 新增 Grok 站点（grok.com 网页版反代，纯对话）；站点切换器变为三站；e2e 覆盖切到 Grok 的品牌与能力裁剪 |
 | v2.0.0 | 改名「网页聊天 · 兼容版」：一套 ES5 内核 + 站点定义，顶栏切换站点；新增豆包站点；会话与偏好按站点隔离；后端路由改为 `/<site>/v1/*`（legacy `/v1/*` 保留）；前端拆成 core/* 小模块，新增 ES5 门禁、本地假后端与 40 条自动化用例；样式拆成 app.css + chat.css |
 | v1.0.0 | 单站 DeepSeek 网页版客户端（`dsweb-lite`） |

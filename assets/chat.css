@@ -358,6 +358,16 @@ body.site-doubao.theme-dark {
   --brand-weak: #1b2340;
   --bubble-user: #1b2340;
 }
+body.site-grok {
+  --brand: #1a1a1a;
+  --brand-weak: #f0f0f0;
+  --bubble-user: #f0f0f0;
+}
+body.site-grok.theme-dark {
+  --brand: #e8e8e8;
+  --brand-weak: #242427;
+  --bubble-user: #242427;
+}
 body.site-deepseek { --brand: var(--ds-500); }
 body.site-deepseek.theme-dark { --brand: var(--ds-450); }
 
