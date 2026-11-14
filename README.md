@@ -104,12 +104,20 @@ Grok 的免费网页版走的是 `grok.com` 的登录态，凭证是 Cookie 里�
 1. 浏览器打开 `https://grok.com/` 并登录（需要能访问它的网络环境）
 2. F12 → Application（应用）→ Storage → Cookies → `https://grok.com`
 3. 复制 `sso` 的值
-4. 放进反代：`cd worker/deepseek && npx wrangler secret put GROK_TOKENS`，或登录后由维护者写入
+4. 放进反代：Cloudflare 后台 Workers → deepseek-web → Settings → Variables and Secrets 添加
+   `GROK_TOKENS`（值就是 `sso`）；只在单台设备用时，也可以直接填进 ⚙ → 连接 → 口令框
+
+可选模型：
+
+- `Grok 3`（`grok-3`，默认，速度快）
+- `Grok 4.1 思考`（`grok-4-1-thinking-1129`，带思考块）
+
+模型清单由反代按你的账号实时读取 `grok.com/rest/models`，所以账号里没有的模型选了会自动回落到 `grok-3`。
 
 注意：
 
 - 免费额度有限（大约 10 条 / 2 小时），本版**每条消息只打一次上游，失败不自动重试**，避免触发风控
-- 只有纯对话：没有历史会话绑定、没有联网搜索、没有思考块
+- 只有纯对话：没有历史会话绑定、没有联网搜索；部分模型会返回思考过程，页面会显示成思考块
 - `sso` 等于账号登录态，泄露就等于把号交出去，别贴到公开地方
 
 ## 兼容性
@@ -134,6 +142,7 @@ e2e 不会访问任何真实站点，重复跑不会碰上游风控；真实上�
 | 版本 | 内容 |
 |---|---|
 | v2.0.1 | 侧栏支持删除单个本机对话；flex gap 全换外边距 |
+| v2.1.1 | Grok 适配器补发 `modelMode`（上游要求模型名与模式一起发，否则回「temporarily unavailable」）；模型清单改为按账号实时读取，新增 Grok 4.1 思考 |
 | v2.1.0 | 新增 Grok 站点（grok.com 网页版反代，纯对话）；站点切换器变为三站；e2e 覆盖切到 Grok 的品牌与能力裁剪 |
 | v2.0.0 | 改名「网页聊天 · 兼容版」：一套 ES5 内核 + 站点定义，顶栏切换站点；新增豆包站点；会话与偏好按站点隔离；后端路由改为 `/<site>/v1/*`（legacy `/v1/*` 保留）；前端拆成 core/* 小模块，新增 ES5 门禁、本地假后端与 40 条自动化用例；样式拆成 app.css + chat.css |
 | v1.0.0 | 单站 DeepSeek 网页版客户端（`dsweb-lite`） |

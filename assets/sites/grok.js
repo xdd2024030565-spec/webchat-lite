@@ -6,7 +6,10 @@
     id: 'grok',
     name: 'Grok',
     endpoint: '/grok/v1',
-    models: [{ id: 'grok-3', name: 'Grok 3' }],
+    models: [
+      { id: 'grok-3', name: 'Grok 3' },
+      { id: 'grok-4-1-thinking-1129', name: 'Grok 4.1 思考' }
+    ],
     caps: { search: false, think: false, incr: false, pin: false, remoteSessions: false },
     copy: {
       newChat: '开启新对话',
