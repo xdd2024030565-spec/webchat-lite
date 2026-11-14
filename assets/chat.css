@@ -375,3 +375,8 @@ body.site-deepseek.theme-dark { --brand: var(--ds-450); }
   .sites { max-width: 42vw; }
   .topbar .title { font-size: 14px; }
 }
+
+body.site-qwen{--brand:#615ced;--brand-weak:#eef0ff;--bubble-user:#eef0ff}
+body.theme-dark.site-qwen{--brand:#8b87ff;--brand-weak:#1e1f3a;--bubble-user:#1e1f3a}
+body.site-kimi{--brand:#1f2329;--brand-weak:#eef0f4;--bubble-user:#eef0f4}
+body.theme-dark.site-kimi{--brand:#e6e8ee;--brand-weak:#23262d;--bubble-user:#23262d}

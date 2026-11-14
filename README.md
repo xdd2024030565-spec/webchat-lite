@@ -3,7 +3,7 @@
 > **在线访问**：https://xdd2024030565-spec.github.io/webchat-lite/
 > 纯静态、无构建：拷走 `index.html` + `assets/` 就能离线打开。
 
-把网页版聊天（DeepSeek、豆包、Grok……）用**纯 ES5** 复刻成一套界面，让老设备 / 老 WebView / 电子墨水屏也能用；顶部一键切换站点，每个站点保留它自己的配色、文案与能力开关。
+把网页版聊天（DeepSeek、豆包、Grok、通义千问、Kimi……）用**纯 ES5** 复刻成一套界面，让老设备 / 老 WebView / 电子墨水屏也能用；顶部一键切换站点，每个站点保留它自己的配色、文案与能力开关。
 
 ## 为什么做这个
 
@@ -60,6 +60,8 @@ assets/sites/index.js      站点清单 + 顺序加载器
 assets/sites/deepseek.js   DeepSeek 站点定义
 assets/sites/doubao.js     豆包站点定义
 assets/sites/grok.js       Grok 站点定义
+assets/sites/qwen.js       通义千问站点定义
+assets/sites/kimi.js       Kimi 站点定义
 tools/                     开发工具（ES5 门禁、本地假后端、e2e 驱动）
 tests/                     node --test 用例
 ```
@@ -121,6 +123,28 @@ Grok 的免费网页版走的是 `grok.com` 的登录态，凭证是 Cookie 里�
 - 只有纯对话：没有历史会话绑定、没有联网搜索；部分模型会返回思考过程，页面会显示成思考块
 - `sso` 等于账号登录态，泄露就等于把号交出去，别贴到公开地方
 
+## 通义千问怎么才能用
+
+通义的免费网页版在 `chat.qwen.ai`，凭证是登录后网页端 localStorage 里的 `token`：
+
+1. 电脑或手机浏览器打开 https://chat.qwen.ai ，登录并随便发一条消息
+2. F12 打开开发者工具 → Application（应用）→ Local Storage → `https://chat.qwen.ai`
+3. 找到键名 `token`，复制它的值（一长串 JWT）
+4. 把值写进反代仓库的 GitHub secret `QWEN_TOKENS`，重新部署即可
+
+可选模型：`Qwen3.7 Max`（默认）、`Qwen3.7 Plus`。token 过期后重新复制一次。
+
+## Kimi 怎么才能用
+
+Kimi 的免费网页版在 `kimi.moonshot.cn`，凭证是 localStorage 里的 `refresh_token`：
+
+1. 打开 https://kimi.moonshot.cn ，登录并随便发一条消息
+2. F12 → Application（应用）→ Local Storage → `https://kimi.moonshot.cn`
+3. 找到键名 `refresh_token` 复制值；如果值是数组，用 `.` 把它们连起来
+4. 把值写进反代仓库的 GitHub secret `KIMI_TOKENS`，重新部署即可
+
+Kimi 每 3 小时约 30 轮长文本问答（短文本不限），刷新 token 失效时重新复制一次。
+
 ## 兼容性
 
 - 目标：Android 5.1+ / Chromium 49+ WebView、老 Chrome/Safari、电子墨水屏浏览器
@@ -143,6 +167,7 @@ e2e 不会访问任何真实站点，重复跑不会碰上游风控；真实上�
 | 版本 | 内容 |
 |---|---|
 | v2.0.1 | 侧栏支持删除单个本机对话；flex gap 全换外边距 |
+| v2.2.0 | 新增通义千问（chat.qwen.ai）与 Kimi（kimi.moonshot.cn）两个站点：各自建临时会话 → 发消息 → 转发 SSE，Kimi 结束后自动删掉临时会话；凭证由部署流程从仓库 secret 注入；站点切换器变为五站 |
 | v2.1.1 | Grok 适配器补发 `modelMode`（上游要求模型名与模式一起发，否则回「temporarily unavailable」）；模型清单改为按账号实时读取，新增 Grok 4.1 思考 |
 | v2.1.0 | 新增 Grok 站点（grok.com 网页版反代，纯对话）；站点切换器变为三站；e2e 覆盖切到 Grok 的品牌与能力裁剪 |
 | v2.0.0 | 改名「网页聊天 · 兼容版」：一套 ES5 内核 + 站点定义，顶栏切换站点；新增豆包站点；会话与偏好按站点隔离；后端路由改为 `/<site>/v1/*`（legacy `/v1/*` 保留）；前端拆成 core/* 小模块，新增 ES5 门禁、本地假后端与 40 条自动化用例；样式拆成 app.css + chat.css |
