@@ -82,11 +82,25 @@ tests/                     node --test 用例
 - token 放在 Worker 的 secret 里，**不在前端**；未配 secret 时也可在设置里填口令走请求头兜底
 - 换成自己的反代：页面 URL 加 `?base=https://你的反代`，或在引入脚本前设置 `window.WCL_BASE`
 
+## 豆包怎么才能用
+
+豆包的反代需要的不是 API Key，而是**网页登录态的 `sessionid` cookie**（一次登录可以长期用）：
+
+1. 电脑浏览器打开 `https://www.doubao.com/` 并登录，随便发一条消息确认能用
+2. F12 → Application（应用）→ Storage → Cookies → `https://www.doubao.com`
+3. 复制 `sessionid` 的值（形如 `a1b2c3…`，很长）
+4. 两种放法，任选一种：
+   - **放反代**（推荐，多设备共用）：`cd worker/deepseek && npx wrangler secret put DOUBAO_TOKENS`，值就是那串 `sessionid`
+   - **放本机**：页面右上 ⚙ → 连接 → 端口令框填进去（存在浏览器本地，只对这个设备生效）
+
+放好之后点一下 ⚙ 里的「检查」，正常会显示可用。豆包暂不支持「绑定网页版对话」「联网搜索」，
+这两个开关在豆包站会自动隐藏。
+
 ## 兼容性
 
 - 目标：Android 5.1+ / Chromium 49+ WebView、老 Chrome/Safari、电子墨水屏浏览器
 - 依赖：`XMLHttpRequest`、`localStorage`、CSS 变量、Flexbox、`<details>`
-- 不用 CSS Grid、`flex gap`（老内核不支持）、`:has()`、`backdrop-filter`
+- 不用 CSS Grid、`flex gap`（用外边距代替）、`:has()`、`backdrop-filter`
 
 ## 开发
 

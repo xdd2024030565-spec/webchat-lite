@@ -137,11 +137,12 @@ button, input, textarea, select {
 
 /* 侧栏分组标题 */
 .grp {
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center;
   padding: 12px 10px 4px;
   font-size: 12px;
   color: var(--fg-faint);
 }
+.grp > * + * { margin-left: 6px; }
 .grp-tag {
   margin-left: auto;
   font-size: 11px;
