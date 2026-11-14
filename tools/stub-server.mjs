@@ -55,7 +55,7 @@ export async function start(opts = {}) {
     }
 
     // ---- 假后端 ----
-    const m = p.match(/^\/(?:stub\/)?(deepseek|doubao|grok|qwen|kimi)\/(health|v1\/models|v1\/sessions|v1\/sessions\/messages|v1\/chat\/completions)$/);
+    const m = p.match(/^\/(?:stub\/)?(deepseek|doubao|grok|glm|kimi)\/(health|v1\/models|v1\/sessions|v1\/sessions\/messages|v1\/chat\/completions)$/);
     if (m) {
       const site = m[1];
       const rest = m[2];

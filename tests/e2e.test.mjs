@@ -107,14 +107,14 @@ test('切到 Grok：品牌类、欢迎语与 caps 都跟着变', async () => {
   assert.match(ui, /"site":"grok"/);
 });
 
-test('切到通义与 Kimi：品牌类、欢迎语各自独立', async () => {
+test('切到智谱清言与 Kimi：品牌类、欢迎语各自独立', async () => {
   await fresh('base=' + enc(stub.url));
   await until('document.querySelectorAll("#siteSwitch .sbtn").length === 5');
 
-  await page.run('document.querySelector("#siteSwitch .sbtn[data-site=qwen]").click(); return true;');
-  await until('document.body.className.indexOf("site-qwen") >= 0');
-  assert.match(await page.text('#chat'), /我是通义千问/);
-  assert.ok(String(await page.run('return document.getElementById("input").getAttribute("placeholder");')).indexOf('通义千问') >= 0);
+  await page.run('document.querySelector("#siteSwitch .sbtn[data-site=glm]").click(); return true;');
+  await until('document.body.className.indexOf("site-glm") >= 0');
+  assert.match(await page.text('#chat'), /我是智谱清言/);
+  assert.ok(String(await page.run('return document.getElementById("input").getAttribute("placeholder");')).indexOf('智谱清言') >= 0);
 
   await page.run('document.querySelector("#siteSwitch .sbtn[data-site=kimi]").click(); return true;');
   await until('document.body.className.indexOf("site-kimi") >= 0');

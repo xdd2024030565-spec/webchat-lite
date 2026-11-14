@@ -6,7 +6,7 @@
 (function (root) {
   'use strict';
 
-  var IDS = ['deepseek', 'doubao', 'grok', 'qwen', 'kimi'];
+  var IDS = ['deepseek', 'doubao', 'grok', 'glm', 'kimi'];
   root.WCL_SITE_IDS = IDS;
   root.WCL_SITE_DEFS = root.WCL_SITE_DEFS || [];
 
