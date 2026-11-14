@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="theme-color" content="#3964fe">
-<title>DeepSeek · 兼容版</title>
-<link rel="stylesheet" href="app.css">
+<title>网页聊天 · 兼容版</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/chat.css">
 </head>
 <body class="theme-dark">
 
@@ -15,7 +16,7 @@
   <aside class="side" id="side">
     <div class="side-top">
       <button class="btn-new" id="btnNew" type="button">
-        <span class="plus">＋</span>开启新对话
+        <span class="plus">＋</span><span id="newChatText">开启新对话</span>
       </button>
     </div>
     <div class="side-list" id="sessList"></div>
@@ -32,9 +33,10 @@
   <main class="main">
     <div class="topbar">
       <button class="icon-btn" id="btnMenu" type="button" title="菜单">☰</button>
+      <span class="sites" id="siteSwitch"></span>
       <span class="title" id="chatTitle">新对话</span>
       <span class="sp"></span>
-      <button class="icon-btn" id="btnModel" type="button" title="模型">⚙</button>
+      <button class="icon-btn" id="btnModel" type="button" title="设置">⚙</button>
     </div>
 
     <div class="chat" id="chat"></div>
@@ -42,7 +44,7 @@
     <div class="composer">
       <div class="inner">
         <div class="cbox">
-          <textarea id="input" rows="1" placeholder="给 DeepSeek 发送消息"></textarea>
+          <textarea id="input" rows="1" placeholder="发送消息…"></textarea>
           <div class="crow">
             <button class="chip" id="chipSearch" type="button">联网搜索</button>
             <button class="chip" id="chipThink" type="button">深度思考</button>
@@ -74,7 +76,7 @@
   </div>
 </div>
 
-<!-- 模型 / 设置 -->
+<!-- 设置 -->
 <div class="mask" id="setMask">
   <div class="dialog">
     <div class="dh">设置</div>
@@ -88,6 +90,19 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="app.js"></script>
+<script src="assets/core/ns.js"></script>
+<script src="assets/core/dom.js"></script>
+<script src="assets/core/md.js"></script>
+<script src="assets/core/sse.js"></script>
+<script src="assets/core/store.js"></script>
+<script src="assets/core/sites.js"></script>
+<script src="assets/core/data.js"></script>
+<script src="assets/core/chrome.js"></script>
+<script src="assets/core/view.js"></script>
+<script src="assets/core/chat.js"></script>
+<script src="assets/core/remote.js"></script>
+<script src="assets/core/shell.js"></script>
+<script src="assets/sites/index.js"></script>
+<script src="assets/app.js"></script>
 </body>
 </html>

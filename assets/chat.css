@@ -1,188 +1,7 @@
 /* ============================================================
-   DeepSeek 网页版 · 兼容版（ES5 / 老设备）
-   配色与字体取自官方 main.dc093a796f.css 的设计令牌，保证观感一致
+   网页聊天 · 兼容版 — 主区样式（消息区 / 输入区 / 浮层 / 站点切换）
+   需要先加载 app.css（设计令牌与侧栏），本文件只覆盖主区。
    ============================================================ */
-
-:root {
-  /* 品牌色（官方 deepseek 色阶） */
-  --ds-50:  #edf3fe;
-  --ds-100: #e4edfd;
-  --ds-200: #d3e2ff;
-  --ds-300: #b7c8fe;
-  --ds-400: #679efe;
-  --ds-450: #5686fe;
-  --ds-500: #3964fe;
-
-  /* 中性色（官方 neutral-bluish 色阶） */
-  --n-0:    #ffffff;
-  --n-50:   #f9fafb;
-  --n-100:  #ebeef2;
-  --n-200:  #e1e5ee;
-  --n-500:  #979da6;
-  --n-600:  #81858c;
-  --n-700:  #61666b;
-  --n-750:  #43454a;
-  --n-800:  #353638;
-  --n-850:  #2c2c2e;
-  --n-900:  #1b1b1c;
-  --n-950:  #151517;
-  --n-1000: #0f1115;
-
-  /* 语义映射（浅色主题） */
-  --bg:         var(--n-0);
-  --bg-side:    var(--n-50);
-  --bg-elev:    var(--n-0);
-  --bg-hover:   var(--n-100);
-  --bg-input:   var(--n-0);
-  --fg:         var(--n-1000);
-  --fg-dim:     var(--n-700);
-  --fg-faint:   var(--n-500);
-  --line:       var(--n-200);
-  --brand:      var(--ds-500);
-  --brand-weak: var(--ds-50);
-  --bubble-user: var(--ds-50);
-  --danger:     #ef4444;
-  --ok:         #22c55e;
-
-  --radius: 12px;
-  --radius-sm: 8px;
-  --font: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue",
-          "PingFang SC", "Microsoft YaHei", sans-serif;
-  --mono: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
-}
-
-/* 深色主题：与官方 dark 令牌一致 */
-body.theme-dark {
-  --bg:         var(--n-950);
-  --bg-side:    var(--n-1000);
-  --bg-elev:    var(--n-900);
-  --bg-hover:   var(--n-850);
-  --bg-input:   var(--n-900);
-  --fg:         var(--n-50);
-  --fg-dim:     #a8adb8;
-  --fg-faint:   var(--n-600);
-  --line:       #2a2a2d;
-  --brand:      var(--ds-450);
-  --brand-weak: #1a2236;
-  --bubble-user: #1f2a44;
-}
-
-* { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font);
-  font-size: 15px;
-  line-height: 1.7;
-  -webkit-text-size-adjust: 100%;
-}
-
-button, input, textarea, select {
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-}
-
-/* ===== 布局：左侧栏 + 主区 ===== */
-.app { display: flex; height: 100%; overflow: hidden; }
-
-.side {
-  width: 260px;
-  flex: 0 0 260px;
-  background: var(--bg-side);
-  border-right: 1px solid var(--line);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.side-top { padding: 12px; }
-
-.btn-new {
-  display: block;
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--bg-elev);
-  color: var(--fg);
-  cursor: pointer;
-  text-align: left;
-  font-weight: 500;
-}
-.btn-new:hover { background: var(--bg-hover); }
-.btn-new .plus { color: var(--brand); font-weight: 600; margin-right: 6px; }
-
-.side-list { flex: 1; overflow-y: auto; padding: 0 8px 8px; }
-
-.sess {
-  display: block;
-  padding: 9px 10px;
-  margin: 2px 0;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--fg);
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.sess:hover { background: var(--bg-hover); }
-.sess.on { background: var(--brand-weak); color: var(--brand); }
-
-/* 侧栏分组标题 */
-.grp {
-  display: flex; align-items: center; gap: 6px;
-  padding: 12px 10px 4px;
-  font-size: 12px;
-  color: var(--fg-faint);
-}
-.grp-tag {
-  margin-left: auto;
-  font-size: 11px;
-  color: var(--fg-faint);
-  background: var(--bg-hover);
-  border-radius: 8px;
-  padding: 0 6px;
-}
-.grp-err { color: var(--danger); }
-.grp-empty {
-  padding: 4px 10px 8px;
-  font-size: 12.5px;
-  color: var(--fg-faint);
-  line-height: 1.6;
-}
-.grp-empty a { color: var(--brand); text-decoration: none; }
-
-/* 网页版对话条目 */
-.sess.rm { color: var(--fg-dim); }
-.sess.rm:hover { color: var(--fg); }
-.rm-tag {
-  display: inline-block;
-  font-size: 10px;
-  line-height: 1.4;
-  padding: 0 4px;
-  margin-right: 4px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  color: var(--fg-faint);
-  vertical-align: 1px;
-}
-
-.side-foot {
-  border-top: 1px solid var(--line);
-  padding: 10px 12px;
-  font-size: 13px;
-  color: var(--fg-dim);
-}
-.side-foot a { color: var(--fg-dim); text-decoration: none; display: block; padding: 4px 0; }
-.side-foot a:hover { color: var(--fg); }
-
 /* ===== 主区 ===== */
 .main {
   flex: 1;
@@ -497,4 +316,49 @@ body.eink * {
   transition: none !important;
   animation: none !important;
   box-shadow: none !important;
+}
+
+/* ===== 站点切换器 ===== */
+.sites {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  max-width: 46vw;
+  -webkit-overflow-scrolling: touch;
+}
+.sbtn {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--fg-dim);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sbtn:hover { color: var(--fg); border-color: var(--fg-faint); }
+.sbtn.on { background: var(--brand-weak); border-color: var(--brand); color: var(--brand); }
+
+/* 设置弹层里的小节标题 */
+.dsec { font-size: 12px; color: var(--fg-faint); padding: 10px 8px 4px; font-weight: 600; }
+
+/* ===== 各站品牌色（皮肤只改变量，不动布局） ===== */
+body.site-doubao {
+  --brand: #4d6bfe;
+  --brand-weak: #eef2ff;
+  --bubble-user: #eef2ff;
+}
+body.site-doubao.theme-dark {
+  --brand: #6f8dff;
+  --brand-weak: #1b2340;
+  --bubble-user: #1b2340;
+}
+body.site-deepseek { --brand: var(--ds-500); }
+body.site-deepseek.theme-dark { --brand: var(--ds-450); }
+
+@media (max-width: 720px) {
+  .sites { max-width: 42vw; }
+  .topbar .title { font-size: 14px; }
 }

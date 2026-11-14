@@ -1,15 +1,14 @@
 name: Deploy to GitHub Pages
 
-# 纯静态站点：直接把仓库根目录发布到 Pages。
-# 三个文件（index.html / app.css / app.js）拷过去就能跑，不需要构建。
+# 纯静态站点：把 index.html + assets/ 拷进 _site 再发布，不需要构建。
+# docs/ tests/ tools/ 不进产物（它们只是开发期工具与文档）。
 
 on:
   push:
     branches: [main]
     paths:
       - 'index.html'
-      - 'app.css'
-      - 'app.js'
+      - 'assets/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -34,10 +33,16 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Stage site
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -r assets _site/assets
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: '_site'
 
       - name: Deploy to GitHub Pages
         id: deployment
