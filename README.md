@@ -85,6 +85,9 @@ tests/                     node --test 用例
 - token 放在 Worker 的 secret 里，**不在前端**；未配 secret 时也可在设置里填口令走请求头兜底
 - 换成自己的反代：页面 URL 加 `?base=https://你的反代`，或在引入脚本前设置 `window.WCL_BASE`
 
+**当前线上部署五个站点都已配好服务端凭证**，任何设备打开就能直接用，不需要各自登录。
+下面几节是「换账号 / 自建反代」时怎么取凭证的说明。
+
 ## 豆包怎么才能用
 
 豆包的反代需要的不是 API Key，而是**网页登录态的 `sessionid` cookie**（一次登录可以长期用）：
@@ -125,7 +128,9 @@ Grok 的免费网页版走的是 `grok.com` 的登录态，凭证是 Cookie 里�
 
 ## 智谱清言怎么才能用
 
-智谱清言的免费网页版在 `chatglm.cn`，凭证是 Cookie 里的 `chatglm_refresh_token`（能自动换 1 小时有效的 access token，所以贴一次能用挺久）：
+智谱清言的免费网页版在 `chatglm.cn`，凭证是 Cookie 里的 `chatglm_refresh_token`（能自动换 1 小时有效的 access token，所以配一次能用几个月）。
+
+> 线上反代已经配好，直接用即可。换账号时按下面取：
 
 1. 电脑或手机浏览器打开 https://chatglm.cn ，登录并随便发一条消息
 2. F12 打开开发者工具 → Application（应用）→ Cookies → `https://chatglm.cn`
@@ -172,6 +177,7 @@ e2e 不会访问任何真实站点，重复跑不会碰上游风控；真实上�
 | 版本 | 内容 |
 |---|---|
 | v2.0.1 | 侧栏支持删除单个本机对话；flex gap 全换外边距 |
+| v2.3.1 | 智谱清言服务端凭证接通（它的 refresh token 会过期，需从已登录页面重新取一次）；五个站点全部改为服务端凭证，任何设备打开即用 |
 | v2.3.0 | 用智谱清言（chatglm.cn）替换通义千问：刷 token、时间戳签名、全量快照转增量；Kimi 改用 Connect RPC 协议并支持直接使用 access 凭证 |
 | v2.2.0 | 新增通义千问（chat.qwen.ai）与 Kimi（kimi.moonshot.cn）两个站点：各自建临时会话 → 发消息 → 转发 SSE，Kimi 结束后自动删掉临时会话；凭证由部署流程从仓库 secret 注入；站点切换器变为五站 |
 | v2.1.1 | Grok 适配器补发 `modelMode`（上游要求模型名与模式一起发，否则回「temporarily unavailable」）；模型清单改为按账号实时读取，新增 Grok 4.1 思考 |
