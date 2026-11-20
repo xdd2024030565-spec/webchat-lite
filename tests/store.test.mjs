@@ -17,7 +17,7 @@ function mem(init) {
 
 test('键名按站点命名空间', () => {
   const s = create(mem());
-  assert.strictEqual(s.siteKey('doubao'), 'webchat.v1.doubao');
+  assert.strictEqual(s.siteKey('testsite'), 'webchat.v1.testsite');
   assert.strictEqual(s.uiKey(), 'webchat.v1.ui');
 });
 
@@ -60,13 +60,13 @@ test('setItem 抛异常（配额满）时 saveSite 返回 false 不抛', () => {
 
 test('saveSite/loadSite 往返', () => {
   const s = create(mem());
-  assert.strictEqual(s.saveSite('doubao', { sessions: [{ id: 'x' }], activeId: 'x', settings: { think: true }, scope: 'sc' }), true);
-  assert.deepStrictEqual(s.loadSite('doubao'), { sessions: [{ id: 'x' }], activeId: 'x', settings: { think: true }, scope: 'sc' });
+  assert.strictEqual(s.saveSite('testsite', { sessions: [{ id: 'x' }], activeId: 'x', settings: { think: true }, scope: 'sc' }), true);
+  assert.deepStrictEqual(s.loadSite('testsite'), { sessions: [{ id: 'x' }], activeId: 'x', settings: { think: true }, scope: 'sc' });
 });
 
 test('clearAll 清掉 UI 与旧键', () => {
   const b = mem({
-    'webchat.v1.ui': '{"site":"doubao"}',
+    'webchat.v1.ui': '{"site":"testsite"}',
     'dsweb-lite.v1': '{"sessions":[]}',
     'dsweb-lite.scope': 's',
     'unrelated': 'keep'

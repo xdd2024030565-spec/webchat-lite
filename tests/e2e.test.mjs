@@ -58,9 +58,9 @@ function chatText() {
   return page.run('return document.getElementById("chat").textContent || "";');
 }
 
-test('首屏：五个站点、默认 DeepSeek、caps 全开', async () => {
+test('首屏：两个站点、默认 DeepSeek、caps 全开', async () => {
   await fresh('base=' + enc(stub.url));
-  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 5');
+  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 2');
 
   const on = await page.run(
     'var e=document.querySelector("#siteSwitch .sbtn.on"); return e ? e.getAttribute("data-site") : null;'
@@ -75,23 +75,9 @@ test('首屏：五个站点、默认 DeepSeek、caps 全开', async () => {
   assert.ok(stubHits('/deepseek/health') >= 1);
 });
 
-test('?site=doubao：品牌类生效、文案切换、caps 关闭的 chip 隐藏', async () => {
-  await fresh('site=doubao&base=' + enc(stub.url));
-  await until('document.body.className.indexOf("site-doubao") >= 0');
-
-  assert.match(await page.text('#chat'), /我是豆包/);
-  assert.equal(await page.run('return document.getElementById("chipSearch").hidden;'), true);
-  assert.equal(await page.run('return document.getElementById("chipThink").hidden;'), true);
-  assert.equal(await page.run('return document.getElementById("chipInc").hidden;'), true);
-  assert.equal(
-    await page.run('var e=document.querySelector("#siteSwitch .sbtn.on"); return e.getAttribute("data-site");'),
-    'doubao'
-  );
-});
-
 test('切到 Grok：品牌类、欢迎语与 caps 都跟着变', async () => {
   await fresh('base=' + enc(stub.url));
-  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 5');
+  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 2');
 
   await page.run('document.querySelector("#siteSwitch .sbtn[data-site=grok]").click(); return true;');
   await until('document.body.className.indexOf("site-grok") >= 0');
@@ -107,28 +93,9 @@ test('切到 Grok：品牌类、欢迎语与 caps 都跟着变', async () => {
   assert.match(ui, /"site":"grok"/);
 });
 
-test('切到智谱清言与 Kimi：品牌类、欢迎语各自独立', async () => {
-  await fresh('base=' + enc(stub.url));
-  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 5');
-
-  await page.run('document.querySelector("#siteSwitch .sbtn[data-site=glm]").click(); return true;');
-  await until('document.body.className.indexOf("site-glm") >= 0');
-  assert.match(await page.text('#chat'), /我是智谱清言/);
-  assert.ok(String(await page.run('return document.getElementById("input").getAttribute("placeholder");')).indexOf('智谱清言') >= 0);
-
-  await page.run('document.querySelector("#siteSwitch .sbtn[data-site=kimi]").click(); return true;');
-  await until('document.body.className.indexOf("site-kimi") >= 0');
-  assert.match(await page.text('#chat'), /我是 Kimi/);
-
-  const on = await page.run(
-    'var e=document.querySelector("#siteSwitch .sbtn.on"); return e ? e.getAttribute("data-site") : null;'
-  );
-  assert.equal(on, 'kimi');
-});
-
 test('流式回复：SSE 增量渲染到对话区并留下操作按钮', async () => {
   await fresh('base=' + enc(stub.url));
-  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 5');
+  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 2');
 
   await send('你好');
   await until('document.querySelectorAll("#chat .msg.assistant").length === 1');
@@ -142,7 +109,7 @@ test('流式回复：SSE 增量渲染到对话区并留下操作按钮', async (
 
 test('上游 200 但返回 HTML：给出可读错误而不是空白', async () => {
   await fresh('base=' + enc(stub.url));
-  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 5');
+  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 2');
 
   await send('html 测试');
   await until('document.getElementById("chat").textContent.indexOf("非流式") >= 0');
@@ -151,7 +118,7 @@ test('上游 200 但返回 HTML：给出可读错误而不是空白', async () =
 
 test('反代地址不可达：提示网络错误且输入区恢复可用', async () => {
   await fresh('base=' + enc('http://127.0.0.1:1'));
-  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 5');
+  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 2');
 
   await send('在吗');
   await until('document.getElementById("chat").textContent.indexOf("网络错误") >= 0');
@@ -160,8 +127,8 @@ test('反代地址不可达：提示网络错误且输入区恢复可用', async
 });
 
 test('切站会中止在途请求，回复不串站', async () => {
-  await fresh('site=doubao&base=' + enc(stub.url));
-  await until('document.body.className.indexOf("site-doubao") >= 0');
+  await fresh('site=grok&base=' + enc(stub.url));
+  await until('document.body.className.indexOf("site-grok") >= 0');
 
   await send('slow 说点什么');
   // 等第一个字符落地，确保流已开始
@@ -174,21 +141,21 @@ test('切站会中止在途请求，回复不串站', async () => {
 
   await new Promise((r) => setTimeout(r, 2500));
   const t = await chatText();
-  assert.equal(t.indexOf('这是假后端'), -1, '豆包的回复不应写进 DeepSeek 的对话列表');
+  assert.equal(t.indexOf('这是假后端'), -1, 'Grok 的回复不应写进 DeepSeek 的对话列表');
   assert.match(t, /我是 DeepSeek/);
 });
 
 test('站点会话互相隔离，切回来还在', async () => {
   await fresh('base=' + enc(stub.url));
-  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 5');
+  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 2');
 
   await send('站点隔离测试');
   await until('document.getElementById("chat").textContent.indexOf("这是假后端") >= 0');
 
-  await page.run('document.querySelector("#siteSwitch .sbtn[data-site=doubao]").click(); return true;');
-  await until('document.body.className.indexOf("site-doubao") >= 0');
+  await page.run('document.querySelector("#siteSwitch .sbtn[data-site=grok]").click(); return true;');
+  await until('document.body.className.indexOf("site-grok") >= 0');
   assert.equal((await chatText()).indexOf('站点隔离测试'), -1);
-  assert.match(await page.text('#chat'), /我是豆包/);
+  assert.match(await page.text('#chat'), /我是 Grok/);
 
   const saved = await page.run('return localStorage.getItem("webchat.v1.deepseek");');
   assert.ok(saved && saved.length > 10, 'deepseek 会话应已落盘');
@@ -200,7 +167,7 @@ test('站点会话互相隔离，切回来还在', async () => {
 
 test('删除本机对话：侧栏 × 删掉会话，删光后自动补一个空对话', async () => {
   await fresh('base=' + enc(stub.url));
-  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 5');
+  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 2');
   await page.run('window.confirm = function () { return true; }; return true;');
 
   assert.equal(await page.count('#sessList .sess[data-id]'), 1);
@@ -219,7 +186,7 @@ test('删除本机对话：侧栏 × 删掉会话，删光后自动补一个空�
 
 test('本机存储写失败：给出提示但消息照常显示', async () => {
   await fresh('base=' + enc(stub.url));
-  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 5');
+  await until('document.querySelectorAll("#siteSwitch .sbtn").length === 2');
 
   await page.run(
     'Storage.prototype.setItem = function(){ throw new Error("QuotaExceededError"); }; return true;'

@@ -55,7 +55,7 @@ export async function start(opts = {}) {
     }
 
     // ---- 假后端 ----
-    const m = p.match(/^\/(?:stub\/)?(deepseek|doubao|grok|glm|kimi)\/(health|v1\/models|v1\/sessions|v1\/sessions\/messages|v1\/chat\/completions)$/);
+    const m = p.match(/^\/(?:stub\/)?(deepseek|grok)\/(health|v1\/models|v1\/sessions|v1\/sessions\/messages|v1\/chat\/completions)$/);
     if (m) {
       const site = m[1];
       const rest = m[2];
@@ -68,7 +68,7 @@ export async function start(opts = {}) {
         res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
         res.end(JSON.stringify({
           object: 'list',
-          data: [{ id: site === 'doubao' ? 'doubao-chat' : 'deepseek-chat', object: 'model' }]
+          data: [{ id: 'deepseek-chat', object: 'model' }]
         }));
         return;
       }

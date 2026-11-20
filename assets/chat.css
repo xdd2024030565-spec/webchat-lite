@@ -348,16 +348,6 @@ body.eink * {
 .dsec { font-size: 12px; color: var(--fg-faint); padding: 10px 8px 4px; font-weight: 600; }
 
 /* ===== 各站品牌色（皮肤只改变量，不动布局） ===== */
-body.site-doubao {
-  --brand: #4d6bfe;
-  --brand-weak: #eef2ff;
-  --bubble-user: #eef2ff;
-}
-body.site-doubao.theme-dark {
-  --brand: #6f8dff;
-  --brand-weak: #1b2340;
-  --bubble-user: #1b2340;
-}
 body.site-grok {
   --brand: #1a1a1a;
   --brand-weak: #f0f0f0;
@@ -376,7 +366,4 @@ body.site-deepseek.theme-dark { --brand: var(--ds-450); }
   .topbar .title { font-size: 14px; }
 }
 
-body.site-glm{--brand:#1e6fd9;--brand-weak:#eaf2ff;--bubble-user:#eaf2ff}
-body.theme-dark.site-glm{--brand:#5c9bff;--brand-weak:#16233a;--bubble-user:#16233a}
-body.site-kimi{--brand:#1f2329;--brand-weak:#eef0f4;--bubble-user:#eef0f4}
-body.theme-dark.site-kimi{--brand:#e6e8ee;--brand-weak:#23262d;--bubble-user:#23262d}
+

@@ -37,14 +37,14 @@ test('byId 找不到返回 null', () => {
 });
 
 test('url 拼装：api 用 endpoint，health 去掉末尾 /v1', () => {
-  const s = normalize({ id: 'doubao', name: '豆包' });
-  assert.strictEqual(apiUrl(s, 'https://h', '/chat/completions'), 'https://h/doubao/v1/chat/completions');
-  assert.strictEqual(healthUrl(s, 'https://h'), 'https://h/doubao/health');
+  const s = normalize({ id: 'testsite', name: '测试站' });
+  assert.strictEqual(apiUrl(s, 'https://h', '/chat/completions'), 'https://h/testsite/v1/chat/completions');
+  assert.strictEqual(healthUrl(s, 'https://h'), 'https://h/testsite/health');
 });
 
 test('copy 自定义覆盖默认', () => {
-  const s = normalize({ id: 'd', name: 'D', copy: { placeholder: '给豆包发送消息', cards: [{ q: 'q', t: 't', d: 'd' }] } });
-  assert.strictEqual(s.copy.placeholder, '给豆包发送消息');
+  const s = normalize({ id: 'd', name: 'D', copy: { placeholder: '给我发送消息', cards: [{ q: 'q', t: 't', d: 'd' }] } });
+  assert.strictEqual(s.copy.placeholder, '给我发送消息');
   assert.strictEqual(s.copy.cards.length, 1);
   assert.strictEqual(s.copy.newChat, '开启新对话');
 });

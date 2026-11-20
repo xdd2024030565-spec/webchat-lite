@@ -3,7 +3,7 @@
 > **在线访问**：https://xdd2024030565-spec.github.io/webchat-lite/
 > 纯静态、无构建：拷走 `index.html` + `assets/` 就能离线打开。
 
-把网页版聊天（DeepSeek、豆包、Grok、智谱清言、Kimi……）用**纯 ES5** 复刻成一套界面，让老设备 / 老 WebView / 电子墨水屏也能用；顶部一键切换站点，每个站点保留它自己的配色、文案与能力开关。
+把网页版聊天（DeepSeek、Grok）用**纯 ES5** 复刻成一套界面，让老设备 / 老 WebView / 电子墨水屏也能用；顶部一键切换站点，每个站点保留它自己的配色、文案与能力开关。
 
 ## 为什么做这个
 
@@ -58,10 +58,7 @@ assets/core/remote.js      网页版会话列表、健康检查
 assets/core/shell.js       设置、选择对话、导出、清空
 assets/sites/index.js      站点清单 + 顺序加载器
 assets/sites/deepseek.js   DeepSeek 站点定义
-assets/sites/doubao.js     豆包站点定义
 assets/sites/grok.js       Grok 站点定义
-assets/sites/glm.js        智谱清言站点定义
-assets/sites/kimi.js       Kimi 站点定义
 tools/                     开发工具（ES5 门禁、本地假后端、e2e 驱动）
 tests/                     node --test 用例
 ```
@@ -85,22 +82,14 @@ tests/                     node --test 用例
 - token 放在 Worker 的 secret 里，**不在前端**；未配 secret 时也可在设置里填口令走请求头兜底
 - 换成自己的反代：页面 URL 加 `?base=https://你的反代`，或在引入脚本前设置 `window.WCL_BASE`
 
-**当前线上部署五个站点都已配好服务端凭证**，任何设备打开就能直接用，不需要各自登录。
+**当前线上部署两个站点都已配好服务端凭证**，任何设备打开就能直接用，不需要各自登录。
 下面几节是「换账号 / 自建反代」时怎么取凭证的说明。
 
-## 豆包怎么才能用
+## DeepSeek 怎么才能用
 
-豆包的反代需要的不是 API Key，而是**网页登录态的 `sessionid` cookie**（一次登录可以长期用）：
+DeepSeek 网页版的 token 从 `https://chat.deepseek.com/` 登录后由页面自动生成；线上反代已经配好服务端凭证，直接用即可。换账号时到反代仓库更新 `DEEPSEEK_TOKEN` 这个 GitHub secret 并重新部署。
 
-1. 电脑浏览器打开 `https://www.doubao.com/` 并登录，随便发一条消息确认能用
-2. F12 → Application（应用）→ Storage → Cookies → `https://www.doubao.com`
-3. 复制 `sessionid` 的值（形如 `a1b2c3…`，很长）
-4. 两种放法，任选一种：
-   - **放反代**（推荐，多设备共用）：`cd worker/deepseek && npx wrangler secret put DOUBAO_TOKENS`，值就是那串 `sessionid`
-   - **放本机**：页面右上 ⚙ → 连接 → 端口令框填进去（存在浏览器本地，只对这个设备生效）
-
-放好之后点一下 ⚙ 里的「检查」，正常会显示可用。豆包暂不支持「绑定网页版对话」「联网搜索」，
-这两个开关在豆包站会自动隐藏。
+DeepSeek 站支持「绑定网页版对话」「联网搜索」「深度思考」「增量模式」，开关在输入框上方。
 
 ## Grok 怎么才能用
 
@@ -126,35 +115,6 @@ Grok 的免费网页版走的是 `grok.com` 的登录态，凭证是 Cookie 里�
 - 只有纯对话：没有历史会话绑定、没有联网搜索；部分模型会返回思考过程，页面会显示成思考块
 - `sso` 等于账号登录态，泄露就等于把号交出去，别贴到公开地方
 
-## 智谱清言怎么才能用
-
-智谱清言的免费网页版在 `chatglm.cn`，凭证是 Cookie 里的 `chatglm_refresh_token`（能自动换 1 小时有效的 access token，所以配一次能用几个月）。
-
-> 线上反代已经配好，直接用即可。换账号时按下面取：
-
-1. 电脑或手机浏览器打开 https://chatglm.cn ，登录并随便发一条消息
-2. F12 打开开发者工具 → Application（应用）→ Cookies → `https://chatglm.cn`
-3. 找到 Name 为 `chatglm_refresh_token` 的那条，复制 Value（一长串 JWT）
-4. 把值写进反代仓库的 GitHub secret `GLM_TOKENS`，重新部署即可
-
-可选模型：`GLM-4 Plus`（默认）、`GLM-4 思考`（会显示思考块）。
-
-## Kimi 怎么才能用
-
-Kimi 的免费网页版已经迁到 Connect RPC（`www.kimi.ai`），凭证有两种：
-
-- **long-term（推荐）**：Cookie 里的 `kimi-refresh`，贴一次由 Worker 自动换短期 access；
-- **临时**：localStorage 里的 `access_token`（`typ` 为 `access` 的 JWT），只能用 15 分钟。
-
-取法：
-
-1. 打开 https://www.kimi.ai ，登录并随便发一条消息
-2. F12 → Application（应用）→ Cookies → `https://www.kimi.ai`，找 `kimi-refresh` 复制 Value
-   （找不到就退而取 Local Storage → `access_token`）
-3. 把值写进反代仓库的 GitHub secret `KIMI_TOKENS`，重新部署即可
-
-Kimi 每 3 小时约 30 轮长文本问答（短文本不限），凭证失效时重新复制一次。
-
 ## 兼容性
 
 - 目标：Android 5.1+ / Chromium 49+ WebView、老 Chrome/Safari、电子墨水屏浏览器
@@ -176,11 +136,9 @@ e2e 不会访问任何真实站点，重复跑不会碰上游风控；真实上�
 
 | 版本 | 内容 |
 |---|---|
-| v2.0.1 | 侧栏支持删除单个本机对话；flex gap 全换外边距 |
-| v2.3.1 | 智谱清言服务端凭证接通（它的 refresh token 会过期，需从已登录页面重新取一次）；五个站点全部改为服务端凭证，任何设备打开即用 |
-| v2.3.0 | 用智谱清言（chatglm.cn）替换通义千问：刷 token、时间戳签名、全量快照转增量；Kimi 改用 Connect RPC 协议并支持直接使用 access 凭证 |
-| v2.2.0 | 新增通义千问（chat.qwen.ai）与 Kimi（kimi.moonshot.cn）两个站点：各自建临时会话 → 发消息 → 转发 SSE，Kimi 结束后自动删掉临时会话；凭证由部署流程从仓库 secret 注入；站点切换器变为五站 |
+| v2.4.0 | 移除豆包、智谱清言、Kimi 三个站点，只保留长期可用的 DeepSeek 与 Grok；站点定义、路由、部署变量、文档同步收敛到两站 |
 | v2.1.1 | Grok 适配器补发 `modelMode`（上游要求模型名与模式一起发，否则回「temporarily unavailable」）；模型清单改为按账号实时读取，新增 Grok 4.1 思考 |
 | v2.1.0 | 新增 Grok 站点（grok.com 网页版反代，纯对话）；站点切换器变为三站；e2e 覆盖切到 Grok 的品牌与能力裁剪 |
-| v2.0.0 | 改名「网页聊天 · 兼容版」：一套 ES5 内核 + 站点定义，顶栏切换站点；新增豆包站点；会话与偏好按站点隔离；后端路由改为 `/<site>/v1/*`（legacy `/v1/*` 保留）；前端拆成 core/* 小模块，新增 ES5 门禁、本地假后端与 40 条自动化用例；样式拆成 app.css + chat.css |
+| v2.0.1 | 侧栏支持删除单个本机对话；flex gap 全换外边距 |
+| v2.0.0 | 改名「网页聊天 · 兼容版」：一套 ES5 内核 + 站点定义，顶栏切换站点；会话与偏好按站点隔离；后端路由改为 `/<site>/v1/*`（legacy `/v1/*` 保留）；前端拆成 core/* 小模块，新增 ES5 门禁、本地假后端与 40 条自动化用例；样式拆成 app.css + chat.css |
 | v1.0.0 | 单站 DeepSeek 网页版客户端（`dsweb-lite`） |
