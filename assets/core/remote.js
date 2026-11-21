@@ -56,6 +56,24 @@
     return lim;
   }
 
+  /*
+   * 取消息数组。后端给的是 { count, messages: [...] }，
+   * 早年也直接给过数组，两种都认；另外逐条剔掉没正文的占位。
+   */
+  function pickMsgs(d) {
+    var raw = d && d.messages;
+    if (raw && raw.messages) raw = raw.messages;
+    if (!raw || typeof raw.length !== 'number') return [];
+    var out = [], i, m;
+    for (i = 0; i < raw.length; i++) {
+      m = raw[i];
+      if (!m || typeof m !== 'object') continue;
+      if (!m.content && !m.reasoning) continue;
+      out.push(m);
+    }
+    return out;
+  }
+
   function findRemote(rid) {
     var list = ST.st.remoteSessions, i;
     for (i = 0; i < list.length; i++) if (list[i].id === rid) return list[i];
@@ -113,7 +131,11 @@
         return;
       }
       var d = D().jParse(xhr.responseText || '');
-      var msgs = (d && d.messages) || [];
+      var msgs = pickMsgs(d);
+      if (!msgs.length) {
+        D().toast('这个对话没有可载入的消息');
+        return;
+      }
       ST.stored.sessions.unshift(makeRemoteSession(rid, rs, msgs));
       ST.stored.activeId = ST.stored.sessions[0].id;
       WCL.data.saveData();
@@ -183,6 +205,6 @@
   WCL.remote = {
     loadRemote: loadRemote, openRemote: openRemote,
     loadHealth: loadHealth, healthText: healthText, showHealth: showHealth,
-    checkHealth: checkHealth, healthKind: healthKind
+    checkHealth: checkHealth, healthKind: healthKind, pickMsgs: pickMsgs
   };
 })(typeof window !== 'undefined' ? window : this);

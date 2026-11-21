@@ -85,13 +85,16 @@ export async function start(opts = {}) {
       }
       if (rest === 'v1/sessions/messages') {
         res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        // 形状对齐真实反代：messages 是 { count, messages: [...] } 而不是裸数组
         res.end(JSON.stringify({
           id: url.searchParams.get('id') || 's-1',
-          count: 2,
-          messages: [
-            { role: 'user', content: '历史提问' },
-            { role: 'assistant', content: '历史回答', reasoning: '历史思考' }
-          ]
+          messages: {
+            count: 2,
+            messages: [
+              { role: 'user', content: '历史提问' },
+              { role: 'assistant', content: '历史回答', reasoning: '历史思考' }
+            ]
+          }
         }));
         return;
       }

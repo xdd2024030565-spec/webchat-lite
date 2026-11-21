@@ -42,7 +42,7 @@
 caps: { search: true, think: true, incr: true, remoteSessions: true, pin: true }
 ```
 
-五个开关含义：`search` 联网搜索、`think` 深度思考、`incr` 增量模式、`pin` 绑定上游网页版会话、`remoteSessions` 读取网页版会话列表。其中 `pin` 只有在 `remoteSessions` 同时为真时才生效（`assets/core/sites.js:32`）。DeepSeek 五项全开，Grok 五项全关（纯对话）。
+五个开关含义：`search` 联网搜索、`think` 深度思考、`incr` 增量模式、`pin` 绑定上游网页版会话、`remoteSessions` 读取网页版会话列表。其中 `pin` 只有在 `remoteSessions` 同时为真时才生效（`assets/core/sites.js:32`）。DeepSeek 五项全开；Grok 只开 `remoteSessions`（能读网页版对话列表，不能绑定上游会话），联网搜索、深度思考、增量模式均不提供。
 
 ## 文件结构
 
@@ -113,7 +113,7 @@ token 本身不含有效期，以下情况会失效：网页版退出登录、�
 
 - 模型 `deepseek-chat`（日常对话）/ `deepseek-reasoner`（深度思考，思考过程放在 `reasoning_content`，前端显示为折叠思考块）。**不支持 function calling**（网页版本身没有这个能力）。
 - 线上已验证：非流式对话、流式 SSE、联网搜索（`search_enabled: true` 会带 `[citation:N]` 引用）、CORS 预检。
-- 支持「绑定网页版对话」「联网搜索」「深度思考」「增量模式」，开关在输入框上方。
+- 支持「绑定网页版对话」「联网搜索」「深度思考」「增量模式」，开关在输入框上方；侧栏「网页版对话」分组直接列出网页版已有会话，点开即导入最近若干条。
 
 ## Grok 怎么才能用
 
@@ -135,7 +135,8 @@ Grok 免费网页版走 `grok.com` 的登录态，凭证是 Cookie 里的 `sso`�
 注意：
 
 - 免费额度有限（大约 10 条 / 2 小时），本版**每条消息只打一次上游，失败不自动重试**，避免触发风控
-- 只有纯对话：没有历史会话绑定、没有联网搜索；部分模型会返回思考过程，页面会显示成思考块
+- 支持读取网页版对话：侧栏「网页版对话」分组列出 grok.com 上已有的会话，点开导入最近若干条（默认 5 条，可在侧栏改）。只读不写，导入后是独立的本机对话，不会继续写回上游
+- 没有绑定上游会话、没有联网搜索；部分模型会返回思考过程，页面会显示成思考块
 - 健康检查只看 `GROK_TOKENS` 是否配置、不打上游，避免探测请求吃掉消息额度
 - `sso` 等于账号登录态，泄露就等于把号交出去
 
@@ -156,12 +157,13 @@ node tools/stub-server.mjs      # 起本地假后端 + 静态站点（默认 876
 自检口径：`node --test tests/` 这种写法会报 MODULE_NOT_FOUND，请用 `tests/*.test.mjs` 这个 glob。
 e2e 不会访问任何真实站点，重复跑不会碰上游风控；真实上游只在人工验收时打一次。
 
-反代侧单测：`cd worker/deepseek && node --test tests/*.test.mjs`（覆盖路由拆分、事件翻译、请求体字段、上游非流式兜底、鉴权与健康检查，源码在 `lite1` 仓库）。
+反代侧单测：`cd worker/deepseek && node --test tests/*.test.mjs`（覆盖路由拆分、事件翻译、请求体字段、上游非流式兜底、Grok 只读接口的列表归一化与两步取数、鉴权与健康检查，源码在 `lite1` 仓库）。
 
 ## 版本记录
 
 | 版本 | 内容 |
 |---|---|
+| v2.4.2 | Grok 站点支持读取网页版对话列表（侧栏「网页版对话」分组，点开导入最近若干条）；修复载入网页版对话时把 `{count, messages}` 当数组解析、导致导入 0 条消息的问题 |
 | v2.4.1 | 新增帽子云国内加速访问地址；后端 CORS 白名单放行帽子云域名，解决跨域无法使用的问题 |
 | v2.4.0 | 移除豆包、智谱清言、Kimi 三个站点，只保留长期可用的 DeepSeek 与 Grok；站点定义、路由、部署变量、文档同步收敛到两站 |
 | v2.1.1 | Grok 适配器补发 `modelMode`（上游要求模型名与模式一起发，否则回「temporarily unavailable」）；模型清单改为按账号实时读取并缓存 10 分钟，新增 Grok 4.1 思考 |
