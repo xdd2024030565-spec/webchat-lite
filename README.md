@@ -1,6 +1,10 @@
 # 网页聊天 · 兼容版
 
-> **在线访问**：https://xdd2024030565-spec.github.io/webchat-lite/
+## 访问地址
+
+- 🚀 **国内加速地址（帽子云）**：https://webchat-10i3d8c30u.maozi.io/
+- 📦 GitHub Pages 原始地址：https://xdd2024030565-spec.github.io/webchat-lite/
+
 > 纯静态、无构建：拷走 `index.html` + `assets/` 就能离线打开（对话需可达反代）。
 
 **本质：网页端接入。** DeepSeek / Grok 的**网页版登录态**经自建 Cloudflare Worker 反代成 **OpenAI 兼容接口**，本仓库前端用**纯 ES5** 复刻网页界面，让老设备 / 老 WebView / 电子墨水屏也能用；**token 不进前端**。顶部一键切换站点，每站保留自己的配色、文案与能力开关。
@@ -158,6 +162,7 @@ e2e 不会访问任何真实站点，重复跑不会碰上游风控；真实上�
 
 | 版本 | 内容 |
 |---|---|
+| v2.4.1 | 新增帽子云国内加速访问地址；后端 CORS 白名单放行帽子云域名，解决跨域无法使用的问题 |
 | v2.4.0 | 移除豆包、智谱清言、Kimi 三个站点，只保留长期可用的 DeepSeek 与 Grok；站点定义、路由、部署变量、文档同步收敛到两站 |
 | v2.1.1 | Grok 适配器补发 `modelMode`（上游要求模型名与模式一起发，否则回「temporarily unavailable」）；模型清单改为按账号实时读取并缓存 10 分钟，新增 Grok 4.1 思考 |
 | v2.1.0 | 新增 Grok 站点（grok.com 网页版反代，纯对话）；站点切换器变为三站；e2e 覆盖切到 Grok 的品牌与能力裁剪 |
